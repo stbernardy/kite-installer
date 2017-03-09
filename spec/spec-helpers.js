@@ -5,6 +5,8 @@ const os = require('os');
 const http = require('http');
 const https = require('https');
 const proc = require('child_process');
+const metrics = require('../ext/telemetry/metrics');
+const AccountManager = require('../lib/account-manager');
 
 // This ensure that the env variables required by the
 // windows support object are available even on another platform.
@@ -13,6 +15,11 @@ if (os.platform() !== 'win32') {
   process.env.ProgramW6432 = os.tmpDir();
   process.env.LOCALAPPDATA = os.tmpDir();
 }
+
+beforeEach(() => {
+  spyOn(metrics, 'track').andCallFake(() => {});
+  spyOn(metrics.Tracker, 'trackEvent').andCallFake(() => {});
+});
 
 function sleep(duration) {
   const t = new Date();
@@ -445,6 +452,12 @@ function withRoutes(routes) {
   });
 }
 
+function withAccountManager() {
+  beforeEach(() => {
+    AccountManager.initClient('localhost', -1);
+  });
+}
+
 module.exports = {
   fakeProcesses, fakeRequestMethod, fakeResponse, fakeKiteInstallPaths,
   withKiteInstalled,
@@ -452,6 +465,6 @@ module.exports = {
   withKiteReachable, withKiteNotReachable,
   withKiteAuthenticated, withKiteNotAuthenticated,
   withKiteWhitelistedPaths, withKiteIgnoredPaths, withKiteBlacklistedPaths,
-  withFakeServer, withRoutes,
+  withFakeServer, withRoutes, withAccountManager,
   sleep,
 };
