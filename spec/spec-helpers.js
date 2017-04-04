@@ -19,6 +19,7 @@ if (os.platform() !== 'win32') {
 beforeEach(() => {
   spyOn(metrics, 'track').andCallFake(() => {});
   spyOn(metrics.Tracker, 'trackEvent').andCallFake(() => {});
+  jasmine.useRealClock();
 });
 
 function sleep(duration) {
